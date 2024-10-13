@@ -1,6 +1,8 @@
 package telran.monitoring.pulse;
 
 import java.net.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -22,7 +24,7 @@ public class PulseSenderAppl {
 
     private static Random random = new Random();
     private static DatagramSocket socket;
-    private static int[] previousPulseValues = new int[N_PATIENTS + 1];
+    private static Map<Long, Integer> previousPulseValues = new HashMap<>();
 
     public static void main(String[] args) throws Exception {
         socket = new DatagramSocket();
@@ -58,28 +60,29 @@ public class PulseSenderAppl {
     }
 
     private static int getRandomPulseValue(long patientId) {
-        int previousValue = previousPulseValues[(int) patientId];
+        int previousValue = previousPulseValues.getOrDefault(patientId, 0);
         int newValue = previousValue == 0 ? random.nextInt(MIN_PULSE_VALUE, MAX_PULSE_VALUE + 1) 
                                           : computeNewValue(previousValue);
-        previousPulseValues[(int) patientId] = newValue;
+        previousPulseValues.put(patientId, newValue);
         return newValue;
     }
 
     private static int computeNewValue(int previousValue) {
         int newValue = previousValue;
         int jumpEvent = random.nextInt(100);
-        
+
         if (jumpEvent < JUMP_PROBABILITY * 100) {
             int sign = random.nextInt(100) < JUMP_POSITIVE_PROBABILITY * 100 ? 1 : -1;
             int jumpPercent = random.nextInt(MIN_JUMP_PERCENT, MAX_JUMP_PERCENT + 1);
             newValue = previousValue + sign * previousValue * jumpPercent / 100;
-            
+
             if (newValue > MAX_PULSE_VALUE) {
                 newValue = MAX_PULSE_VALUE;
             } else if (newValue < MIN_PULSE_VALUE) {
                 newValue = MIN_PULSE_VALUE;
             }
-        }       
+        }
+
         return newValue;
     }
 }
