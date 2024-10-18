@@ -10,7 +10,7 @@ import telran.monitoring.pulse.dto.SensorData;
 public class PulseSenderAppl {
 
     private static final int PORT = 5000;
-    private static final String HOST = "127.0.0.1";
+    private static final String HOST = "localhost";
     private static final int N_PATIENTS = 1000;
     private static final int MIN_PULSE_VALUE = 40;
     private static final int MAX_PULSE_VALUE = 210;
